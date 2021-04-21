@@ -17,7 +17,10 @@ from telegram.ext import (
     CallbackContext,
 )
 
+import pytz
+
 from helperFunctions import *
+from dbController import *
 
 # Credentials
 load_dotenv('.env')
@@ -25,12 +28,13 @@ TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 
 # Enable logging
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
-)
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
-USER,BIRTHDAY_DATA = range(2)
+USER, BIRTHDAY_DATA = range(2)
+
 
 def start(update: Update, _: CallbackContext) -> None:
 
@@ -40,7 +44,8 @@ def start(update: Update, _: CallbackContext) -> None:
         'Quando for o aniversário de algum destes conhecidos, eu te enviarei uma mensagem te notificando 🎂🎇'
     )
 
-def add(update: Update, context : CallbackContext) -> None:
+
+def add(update: Update, context: CallbackContext) -> None:
 
     USER = update.message.from_user
 
@@ -51,26 +56,54 @@ def add(update: Update, context : CallbackContext) -> None:
         full_name = context.args[0:-1]
         birthday = context.args[-1]
 
-        birthday = re.findall(r"[\w']+", birthday)
-
-
-        valid_name,name = check_name(full_name)
-        valid_date,birthday = check_birthday(birthday)
+        valid_name, name = check_name(full_name)
+        valid_date, birthday = check_birthday(birthday)
 
         if not valid_name:
             text = 'Por favor, adicione um nome correto 😔\n'
         elif not valid_date:
             text = 'Por favor, adicione uma data correta 😔\n'
         else:
-            text = f'{USER.first_name} adicionamos o aniversário que você solicitou 🎁!'
+            text = f'{USER.first_name} adicionamos o aniversário que você solicitou 🎁'
 
-        print(USER,full_name,birthday)
+        data = {
+            'telegram_id':
+            USER['id'],
+            'name':
+            USER['first_name'],
+            'friends': [{
+                'name': ' '.join(full_name),
+                'birthday': {
+                    'day': birthday.day,
+                    'month': birthday.month,
+                    'year': birthday.year
+                }
+            }]
+        }
+
+        insert_birthday(data)
 
         update.message.reply_text(text)
 
     except (IndexError, ValueError):
-        update.message.reply_text('Desculpe, mas a formato do seu comando está errado 😔\n'
-                                  'Use o comando: /add NOME DD\MM ou /add NOME DD\MM\YYYY\n')
+        update.message.reply_text(
+            'Desculpe, mas a formato do seu comando está errado 😔\n'
+            'Use o comando: /add NOME DD/MM ou /add NOME DD/MM/AAAA\n')
+
+
+def send_congratulations(context: CallbackContext) -> None:
+    """Send the alarm message."""
+    users = get_all_today_birthdays()
+
+    for data in users:
+        user_name = data['name']
+        friend_name = data['friends']['name']
+        user_id = data['telegram_id']
+
+        text = 'Olá, {}, hoje é o aniversário do(a) {}, deseje felicidades para ele(a) 🎉'.format(
+            user_name, friend_name)
+
+        context.bot.sendMessage(user_id, text=text)
 
 
 def main() -> None:
@@ -83,6 +116,13 @@ def main() -> None:
     # on noncommand i.e message - echo the message on Telegram
     dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(CommandHandler('add', add))
+
+    # Set the daily jobs to remind the user their frieds birthdays
+    job = updater.job_queue
+    job_daily = job.run_daily(send_congratulations,
+                              time=datetime.time(
+                                  hour=5,
+                                  tzinfo=pytz.timezone('America/Sao_Paulo')))
 
     # Start the Bot
     updater.start_polling()
