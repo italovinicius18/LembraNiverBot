@@ -19,6 +19,8 @@ from telegram.ext import (
 
 import pytz
 
+from pprint import pprint
+
 from helperFunctions import *
 from dbController import *
 
@@ -96,6 +98,9 @@ def send_congratulations(context: CallbackContext) -> None:
     users = get_all_today_birthdays()
 
     for data in users:
+
+        pprint(data)
+
         user_name = data['name']
         friend_name = data['friends']['name']
         user_id = data['telegram_id']
