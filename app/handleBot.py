@@ -18,6 +18,7 @@ from telegram.ext import (
 )
 
 from helperFunctions import *
+from dbController import *
 
 # Credentials
 load_dotenv('.env')
@@ -51,9 +52,6 @@ def add(update: Update, context : CallbackContext) -> None:
         full_name = context.args[0:-1]
         birthday = context.args[-1]
 
-        birthday = re.findall(r"[\w']+", birthday)
-
-
         valid_name,name = check_name(full_name)
         valid_date,birthday = check_birthday(birthday)
 
@@ -62,15 +60,17 @@ def add(update: Update, context : CallbackContext) -> None:
         elif not valid_date:
             text = 'Por favor, adicione uma data correta 😔\n'
         else:
-            text = f'{USER.first_name} adicionamos o aniversário que você solicitou 🎁!'
+            text = f'{USER.first_name} adicionamos o aniversário que você solicitou 🎁'
 
-        print(USER,full_name,birthday)
+        data = {'telegram_id': USER['id'], 'name': USER['first_name'], 'friends': [{'name': ' '.join(full_name), 'birthday': birthday}] }
+
+        insert_birthday(data)
 
         update.message.reply_text(text)
 
     except (IndexError, ValueError):
         update.message.reply_text('Desculpe, mas a formato do seu comando está errado 😔\n'
-                                  'Use o comando: /add NOME DD\MM ou /add NOME DD\MM\YYYY\n')
+                                  'Use o comando: /add NOME DD/MM ou /add NOME DD/MM/AAAA\n')
 
 
 def main() -> None:

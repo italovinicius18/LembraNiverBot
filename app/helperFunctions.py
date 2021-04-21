@@ -1,28 +1,22 @@
 import regex as re
-
+import datetime as dt
 
 def check_birthday(birthday):
+    birthday = re.findall(r"[\w']+", birthday)
 
-    have_year = False
+    birthday = list(map(int, birthday))
 
     if(len(birthday)<=1):
         return False,None
 
-    if(len(birthday)==3):
-        have_year = True
+    if(len(birthday)==2):
+        birthday.append(1) #If birthday don't have year, we set the year to 1
 
-    if(have_year):
-        birthday = {
-            'day': birthday[0],
-            'month': birthday[1],
-            'year': birthday[2]
-        }
-    else:
-        birthday = {
-            'day': birthday[0],
-            'month': birthday[1]
-        }
-    
+    try:
+        birthday = dt.datetime(birthday[2],birthday[1],birthday[0])
+    except ValueError:
+        return False,None
+
     return True,birthday
 
 def check_name(full_name):
