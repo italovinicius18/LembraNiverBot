@@ -56,6 +56,11 @@ def get_all_today_birthdays():
     current_month = datetime.datetime.today().month
 
     search_query = [{
+        "$match": {
+            "friends.birthday.day": current_day,
+            "friends.birthday.month": current_month
+        }
+    }, {
         "$unwind": "$friends"
     }, {
         "$match": {
