@@ -22,6 +22,7 @@ jobs:
             TELEGRAM_BOT_TOKEN
             MONGODB_TOKEN
           appdir: app
+          stack: "container"
         env:
           TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}
           MONGODB_TOKEN: ${{secrets.MONGODB_TOKEN}}
