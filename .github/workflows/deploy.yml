@@ -17,11 +17,11 @@ jobs:
           heroku_email: "italovinicius18@yahoo.com"
           branch: main
           docker_heroku_process_type: worker
+          appdir: "app"
           usedocker: true
           docker_build_args: |
             TELEGRAM_BOT_TOKEN
             MONGODB_TOKEN
-          appdir: app
           stack: "container"
         env:
           TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}
