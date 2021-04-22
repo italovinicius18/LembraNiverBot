@@ -19,10 +19,10 @@ jobs:
           docker_heroku_process_type: worker
           appdir: "app"
           usedocker: true
+          stack: "container"
           docker_build_args: |
             TELEGRAM_BOT_TOKEN
             MONGODB_TOKEN
-          stack: "container"
         env:
           TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}
           MONGODB_TOKEN: ${{secrets.MONGODB_TOKEN}}
