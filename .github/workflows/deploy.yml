@@ -16,7 +16,6 @@ jobs:
           heroku_app_name: "lembraniverbot" #Must be unique in Heroku
           heroku_email: "italovinicius18@yahoo.com"
           branch: main
-          docker_heroku_process_type: worker
           usedocker: true
           stack: "container"
           docker_build_args: |
