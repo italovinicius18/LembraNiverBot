@@ -15,11 +15,13 @@ jobs:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: "lembraniverbot" #Must be unique in Heroku
           heroku_email: "italovinicius18@yahoo.com"
-          appdir: app
+          branch: main
+          docker_heroku_process_type: worker
           usedocker: true
           docker_build_args: |
             TELEGRAM_BOT_TOKEN
             MONGODB_TOKEN
+          appdir: app
         env:
           TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}
           MONGODB_TOKEN: ${{secrets.MONGODB_TOKEN}}
